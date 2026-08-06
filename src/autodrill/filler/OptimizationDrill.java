@@ -1,6 +1,7 @@
 package autodrill.filler;
 
 import arc.Core;
+import arc.math.Mathf;
 import arc.math.geom.Rect;
 import arc.struct.ObjectIntMap;
 import arc.struct.ObjectMap;
@@ -8,6 +9,7 @@ import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.Blocks;
+import mindustry.content.Items;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.Team;
 import mindustry.type.Item;
@@ -25,10 +27,6 @@ public class OptimizationDrill {
     public static void fill(Tile tile, Drill drill, boolean waterExtractorsAndPowerNodes) {
         Team team = Vars.player.team();
 
-        // --- FIX: use correct settings key per drill type ---
-        // Settings keys are: "mechanical-drill-max-tiles", "pneumatic-drill-max-tiles",
-        //                     "laser-drill-max-tiles", "airblast-drill-max-tiles"
-        // The original code mapped mechanicalDrill -> "laser" which was wrong.
         String drillPrefix = getDrillSettingsPrefix(drill);
         int maxTiles = Core.settings.getInt(drillPrefix + "-drill-max-tiles");
 
@@ -44,14 +42,11 @@ public class OptimizationDrill {
             tilesItemAndCount.put(t, Util.countOre(t, drill));
         }
 
-        // Pre-filter: only keep tiles that mine the correct resource,
-        // meet minimum ore count, AND whose full footprint is placeable.
         tiles.retainAll(t -> {
             ObjectIntMap.Entry<Item> itemAndCount = tilesItemAndCount.get(t);
             if (itemAndCount == null || itemAndCount.key != floor.itemDrop || itemAndCount.value < minOresPerDrill) {
                 return false;
             }
-            // Requirement 4: full footprint must be buildable
             if (!Util.canPlaceBlock(drill, team, t.x, t.y, 0)) {
                 return false;
             }
@@ -61,7 +56,6 @@ public class OptimizationDrill {
             return itemAndCount == null ? Integer.MIN_VALUE : -itemAndCount.value;
         });
 
-        // --- Dry-run phase: build plans into a temporary list ---
         Seq<BuildPlan> allPlans = new Seq<>();
         Seq<Tile> selection = new Seq<>();
 
@@ -69,7 +63,6 @@ public class OptimizationDrill {
 
         recursiveMaxSearch(tiles, drill, team, tilesItemAndCount, selection, new Seq<>(), 0, new Seq<>(), maxTries, 0);
 
-        // Build drill plans, validating against each other
         for (Tile t : selection) {
             BuildPlan plan = new BuildPlan(t.x, t.y, 0, drill);
             if (Util.canPlaceWithoutPlanCollision(plan, team, allPlans)) {
@@ -77,29 +70,60 @@ public class OptimizationDrill {
             }
         }
 
-        // Optional water extractors and power nodes
-        if (waterExtractorsAndPowerNodes
-            && Core.settings.getBool(bundle.get("auto-drill.settings.place-water-extractor-and-power-nodes"))) {
+        // --- ЛОГИКА ГЕНЕРАЦИИ ДЛЯ КРУПНЫХ УГОЛЬНЫХ БУРОВ ---
+        if (floor.itemDrop == Items.coal && Core.settings.getBool("autodrill-build-generators", false)) {
+            boolean useSteam = Core.settings.getBool("autodrill-use-steam-generators", false);
+            mindustry.world.Block genBlock = useSteam ? Blocks.steamGenerator : Blocks.combustionGenerator;
+            float consumption = useSteam ? 0.66f : 0.50f;
+
+            float baseSpeed = 0.15f;
+            float multiplier = (drill == Blocks.laserDrill) ? 2.56f : 3.24f;
+
+            for (Tile t : selection) {
+                ObjectIntMap.Entry<Item> cnt = tilesItemAndCount.get(t);
+                if (cnt == null) continue;
+
+                float drillOutput = cnt.value * baseSpeed * multiplier;
+                int gensNeeded = Mathf.ceil(drillOutput / consumption);
+
+                int placedGens = 0;
+                // Смещения вокруг бура (размер лазерного 3х3, воздушного 4х4)
+                int radius = drill.size / 2 + 1;
+
+                int[][] sideOffsets = {{radius, 0}, {-radius, 0}, {0, radius}, {0, -radius}};
+
+                for (int[] offset : sideOffsets) {
+                    if (placedGens >= gensNeeded) break;
+
+                    int rX = t.x + offset[0];
+                    int rY = t.y + offset[1];
+
+                    // Ставим маршрутизатор в упор к буру
+                    BuildPlan routerPlan = new BuildPlan(rX, rY, 0, Blocks.router);
+                    if (Util.canPlaceWithoutPlanCollision(routerPlan, team, allPlans)) {
+                        allPlans.add(routerPlan);
+
+                        // Пытаемся примостить генератор (2х2) рядом с маршрутизатором
+                        int gX = rX + (offset[0] == 0 ? 1 : 0);
+                        int gY = rY + (offset[1] == 0 ? 1 : 0);
+
+                        BuildPlan genPlan = new BuildPlan(gX, gY, 0, genBlock);
+                        if (Util.canPlaceWithoutPlanCollision(genPlan, team, allPlans)) {
+                            allPlans.add(genPlan);
+                            placedGens++;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (waterExtractorsAndPowerNodes && Core.settings.getBool(bundle.get("auto-drill.settings.place-water-extractor-and-power-nodes"))) {
             placeWaterExtractorsAndPowerNodes(selection, drill, team, allPlans);
         }
 
-        // --- Commit phase: only now submit to the player's build queue ---
         Util.commitPlans(allPlans);
-
-        if (Util.DEBUG) {
-            Log.info("[AutoDrill] OptimizationDrill: committed " + allPlans.size
-                + " plans for " + drill.name);
-        }
     }
 
-    /**
-     * Recursive search for the best non-overlapping set of drill placements.
-     *
-     * Changed from original: uses Util.canPlaceBlock instead of raw
-     * Build.validPlace, and tracks collisions via Rect overlap. This keeps
-     * the optimizer's rectangle logic but ensures every candidate passed
-     * the unified placement check during the pre-filter step.
-     */
     private static int recursiveMaxSearch(
             Seq<Tile> tiles, Drill drill, Team team,
             ObjectMap<Tile, ObjectIntMap.Entry<Item>> tilesItemAndCount,
@@ -117,9 +141,6 @@ public class OptimizationDrill {
         for (Tile tile : tiles) {
             Rect rect = Util.getBlockRect(tile, drill);
 
-            // Rectangle overlap against already-selected drills in this branch.
-            // Note: canPlaceBlock was already checked in the pre-filter, so we
-            // only need the overlap test here for branch-local collision.
             if (rects.isEmpty() || rects.find(r -> r.overlaps(rect)) == null) {
                 int newSum = sum + tilesItemAndCount.get(tile).value;
 
@@ -145,60 +166,39 @@ public class OptimizationDrill {
         return max;
     }
 
-    /**
-     * Place water extractors and power nodes adjacent to selected drills.
-     *
-     * Changed from original:
-     * - Uses Util.canPlaceWithoutPlanCollision instead of BuildPlan.placeable + manual rect check.
-     * - Validates against the shared allPlans list so support blocks don't
-     *   collide with drills or with each other.
-     * - Only adds plans that actually pass validation (requirement 5).
-     */
     private static void placeWaterExtractorsAndPowerNodes(
             Seq<Tile> selection, Drill drill, Team team, Seq<BuildPlan> allPlans) {
 
         for (Tile t : selection) {
             Seq<Tile> nearby = Util.getNearbyTiles(t.x, t.y, drill.size, Blocks.waterExtractor.size);
-
             for (Tile n : nearby) {
                 BuildPlan plan = new BuildPlan(n.x, n.y, 0, Blocks.waterExtractor);
                 if (Util.canPlaceWithoutPlanCollision(plan, team, allPlans)) {
                     allPlans.add(plan);
-                    break; // one water extractor per drill
+                    break;
                 }
             }
         }
 
         for (Tile t : selection) {
             Seq<Tile> nearby = Util.getNearbyTiles(t.x, t.y, drill.size, Blocks.powerNode.size);
-
             for (Tile n : nearby) {
                 BuildPlan plan = new BuildPlan(n.x, n.y, 0, Blocks.powerNode);
                 if (Util.canPlaceWithoutPlanCollision(plan, team, allPlans)) {
                     allPlans.add(plan);
-                    break; // one power node per drill
+                    break;
                 }
             }
         }
     }
 
-    /**
-     * Return the correct settings key prefix for a drill.
-     *
-     * FIX: The original code used:
-     *   (drill == Blocks.mechanicalDrill ? "laser" : "airblast") + "-drill-max-tiles"
-     * which mapped mechanicalDrill to "laser-drill-max-tiles" — clearly wrong.
-     * The settings UI registers keys like "mechanical-drill-max-tiles".
-     */
     private static String getDrillSettingsPrefix(Drill drill) {
         if (drill == Blocks.mechanicalDrill) return "mechanical";
         if (drill == Blocks.pneumaticDrill)  return "pneumatic";
         if (drill == Blocks.laserDrill)      return "laser";
         if (drill == Blocks.blastDrill)      return "airblast";
-        // Impact and eruption drills share the airblast settings in the original
-        // mod since they don't have dedicated settings entries.
         if (drill == Blocks.impactDrill)     return "airblast";
         if (drill == Blocks.eruptionDrill)   return "airblast";
-        return "airblast"; // fallback
+        return "airblast";
     }
-}
+        }
