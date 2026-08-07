@@ -18,6 +18,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Setup Gradle Properties
+      run: echo "mndVersion=v146" > gradle.properties
+
     - name: Build with Gradle
       run: ./gradlew jar
 
