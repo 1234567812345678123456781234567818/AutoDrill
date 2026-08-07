@@ -203,7 +203,7 @@ public class AutoDrill extends Mod {
             directionTable.visible = true;
             directionAction = direction -> BridgeDrill.fill(selectedTile, (Drill) Blocks.mechanicalDrill, direction);
         }).get();
-        Используйте код с осторожностью.
+        // Используйте код с осторожностью.
 
         mechanicalDrillButton.resizeImage(buttonSize);
         pneumaticDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-pneumatic-drill-full")), Styles.defaulti, () -> {
@@ -232,13 +232,12 @@ public class AutoDrill extends Mod {
             directionAction = direction -> WallDrill.fill(selectedTile, (BeamDrill) Blocks.plasmaBore, direction);
         }).get();
         plasmaBoreButton.resizeImage(buttonSize);
-        /largePlasmaBoreButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-large-plasma-bore-full")), Styles.defaulti, () -> {
+        largePlasmaBoreButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-large-plasma-bore-full")), Styles.defaulti, () -> {
         selectTable.visible = false;
         directionTable.visible = true;
         directionAction = direction -> WallDrill.fill(selectedTile, (BeamDrill) Blocks.largePlasmaBore, direction);
     }).get();
 largePlasmaBoreButton.resizeImage(buttonSize);
-/
 impactDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-impact-drill-full")), Styles.defaulti, () -> {
     enabled = false;
     selectTable.visible = false;
@@ -283,11 +282,10 @@ private void updateSelectTable() {
     if (Blocks.plasmaBore.environmentBuildable() && selectedTile.wallDrop() != null && selectedTile.wallDrop().hardness <= ((BeamDrill) Blocks.plasmaBore).tier) {
         selectTable.add(plasmaBoreButton);
     }
-    /selectTable.removeChild(largePlasmaBoreButton);
+    selectTable.removeChild(largePlasmaBoreButton);
     if (Blocks.largePlasmaBore.environmentBuildable() && selectedTile.wallDrop() != null && selectedTile.wallDrop().hardness <= ((BeamDrill) Blocks.largePlasmaBore).tier) {
         selectTable.add(largePlasmaBoreButton);
     }
-    /
     selectTable.removeChild(impactDrillButton);
     if (Blocks.impactDrill.environmentBuildable() && ((Drill) Blocks.impactDrill).canMine(selectedTile)) {
         selectTable.add(impactDrillButton);
