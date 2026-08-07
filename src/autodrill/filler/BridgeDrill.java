@@ -188,11 +188,11 @@ public class BridgeDrill {
 
     // --- ЛОГИКА ГЕНЕРАЦИИ УГОЛЬНЫХ ГЕНЕРАТОРОВ ДЛЯ МОСТОВЫХ БУРОВ ---
     if (source.drop() == Items.coal && Core.settings.getBool("autodrill-build-generators", false)) {
-      float baseSpeed = (drill == Blocks.mechanicalDrill) ? 0.08 f : 0.12 f;
+      float baseSpeed = (drill == Blocks.mechanicalDrill) ? 0.08f : 0.12f;
       float totalMiningPerSec = totalOreTilesCount * baseSpeed;
 
       boolean useSteam = Core.settings.getBool("autodrill-use-steam-generators", false);
-      float consumption = useSteam ? 0.66 f : 0.50 f;
+      float consumption = useSteam ? 0.66f : 0.50f;
       int genCount = Mathf.ceil(totalMiningPerSec / consumption);
 
       if (genCount > 0) {
