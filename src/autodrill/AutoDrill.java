@@ -64,7 +64,7 @@ public class AutoDrill extends Mod {
             t.labelWrap(bundle.get("auto-drill-welcome-text")).growX().fillX().padTop(10).row();
             t.labelWrap(bundle.get("auto-drill-tutorial-text")).growX().fillX().padTop(10).row();
 
-            float maxWidth = Math.max(Core.scene.getWidth() * 0.5 f, Math.min(1000, Core.scene.getWidth()));
+            float maxWidth = Math.max(Core.scene.getWidth() * 0.5f, Math.min(1000, Core.scene.getWidth()));
 
             t.image(new TextureRegionDrawable(Core.atlas.find("auto-drill-tutorial"))).maxWidth(maxWidth).scaling(Scaling.fit).padTop(10).get().setWidth(maxWidth);
             t.row();
@@ -89,12 +89,12 @@ public class AutoDrill extends Mod {
         buildDirectionTable();
 
         // Settings
-        Cons < SettingsMenuDialog.SettingsTable > builder = settingsTable - > {
+        Cons < SettingsMenuDialog.SettingsTable > builder = settingsTable -> {
             SettingsMenuDialog.SettingsTable settings = new SettingsMenuDialog.SettingsTable();
 
             settings.pref(new DescriptionSetting(bundle.get("auto-drill.settings.activation-desc")));
-            settings.textPref(bundle.get("auto-drill.settings.activation-key"), KeyCode.h.name().toUpperCase(), s - > {
-                KeyCode keyCode = Arrays.stream(KeyCode.values()).filter(k - > k.value.equalsIgnoreCase(s)).findFirst().orElse(null);
+            settings.textPref(bundle.get("auto-drill.settings.activation-key"), KeyCode.h.name().toUpperCase(), s -> {
+                KeyCode keyCode = Arrays.stream(KeyCode.values()).filter(k -> k.value.equalsIgnoreCase(s)).findFirst().orElse(null);
                 Core.settings.put(bundle.get("auto-drill.settings.activation-key"), keyCode == null ? KeyCode.h.name().toUpperCase() : keyCode.name().toUpperCase());
             });
             settings.checkPref(bundle.get("auto-drill.settings.display-toggle-button"), true);
@@ -103,24 +103,24 @@ public class AutoDrill extends Mod {
             settings.pref(new DescriptionSetting(bundle.get("auto-drill.settings.drills-desc")));
 
             settings.pref(new DescriptionSetting("\uF870 " + bundle.get("auto-drill.settings.mechanical-drill")));
-            settings.sliderPref("mechanical-drill-max-tiles", 200, 25, 500, 25, value - > value + "").title = bundle.get("auto-drill.settings.max-tiles");
-            settings.sliderPref("mechanical-drill-min-ores", 1, 1, 4, 1, value - > value + "").title = bundle.get("auto-drill.settings.min-ores");
+            settings.sliderPref("mechanical-drill-max-tiles", 200, 25, 500, 25, value -> value + "").title = bundle.get("auto-drill.settings.max-tiles");
+            settings.sliderPref("mechanical-drill-min-ores", 1, 1, 4, 1, value -> value + "").title = bundle.get("auto-drill.settings.min-ores");
 
             settings.pref(new DescriptionSetting("\uF86F " + bundle.get("auto-drill.settings.pneumatic-drill")));
-            settings.sliderPref("pneumatic-drill-max-tiles", 150, 25, 500, 25, value - > value + "").title = bundle.get("auto-drill.settings.max-tiles");
-            settings.sliderPref("pneumatic-drill-min-ores", 2, 1, 4, 1, value - > value + "").title = bundle.get("auto-drill.settings.min-ores");
+            settings.sliderPref("pneumatic-drill-max-tiles", 150, 25, 500, 25, value -> value + "").title = bundle.get("auto-drill.settings.max-tiles");
+            settings.sliderPref("pneumatic-drill-min-ores", 2, 1, 4, 1, value -> value + "").title = bundle.get("auto-drill.settings.min-ores");
 
             settings.pref(new DescriptionSetting("\uF86E " + bundle.get("auto-drill.settings.laser-drill")));
-            settings.sliderPref("laser-drill-max-tiles", 100, 25, 500, 25, value - > value + "").title = bundle.get("auto-drill.settings.max-tiles");
-            settings.sliderPref("laser-drill-min-ores", 5, 1, 9, 1, value - > value + "").title = bundle.get("auto-drill.settings.min-ores");
+            settings.sliderPref("laser-drill-max-tiles", 100, 25, 500, 25, value -> value + "").title = bundle.get("auto-drill.settings.max-tiles");
+            settings.sliderPref("laser-drill-min-ores", 5, 1, 9, 1, value -> value + "").title = bundle.get("auto-drill.settings.min-ores");
 
             settings.pref(new DescriptionSetting("\uF86D " + bundle.get("auto-drill.settings.airblast-drill")));
-            settings.sliderPref("airblast-drill-max-tiles", 100, 25, 500, 25, value - > value + "").title = bundle.get("auto-drill.settings.max-tiles");
-            settings.sliderPref("airblast-drill-min-ores", 9, 1, 16, 1, value - > value + "").title = bundle.get("auto-drill.settings.min-ores");
+            settings.sliderPref("airblast-drill-max-tiles", 100, 25, 500, 25, value -> value + "").title = bundle.get("auto-drill.settings.max-tiles");
+            settings.sliderPref("airblast-drill-min-ores", 9, 1, 16, 1, value -> value + "").title = bundle.get("auto-drill.settings.min-ores");
 
             settings.pref(new DividerSetting());
             settings.pref(new DescriptionSetting(bundle.get("auto-drill.settings.optimization-quality-desc")));
-            settings.sliderPref(bundle.get("auto-drill.settings.optimization-quality"), 2, 1, 10, 1, i - > i + "");
+            settings.sliderPref(bundle.get("auto-drill.settings.optimization-quality"), 2, 1, 10, 1, i -> i + "");
             settings.checkPref(bundle.get("auto-drill.settings.place-water-extractor-and-power-nodes"), true);
 
             // --- ДОБАВЛЕННЫЕ НАСТРОЙКИ ДЛЯ УГОЛЬНЫХ ГЕНЕРАТОРОВ ---
