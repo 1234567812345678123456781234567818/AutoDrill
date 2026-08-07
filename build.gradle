@@ -1,3 +1,11 @@
+ext {
+    // Жестко прописываем рабочую версию вместо динамических переменных
+    mindustryVersion = 'v146'
+    
+    // Остальные строки (appName, mainClassName и т.д.) оставьте без изменений
+    appName = 'AutoDrill'
+    mainClassName = 'autodrill.AutoDrill'
+}
 apply plugin: "java"
 
 version '1.0'
@@ -15,7 +23,7 @@ repositories{
 
 ext{
     //the build number that this mod is made for
-    mindustryVersion = 'v158.1'
+    mindustryVersion = 'v146'
     jabelVersion = "93fde537c7"
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
