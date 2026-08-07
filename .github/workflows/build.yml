@@ -19,7 +19,9 @@ jobs:
       run: chmod +x gradlew
 
     - name: Setup Gradle Properties
-      run: echo "mndVersion=v146" > gradle.properties
+      run: |
+        echo "mndVersion=v146" > gradle.properties
+        echo "arcVersion=v146" >> gradle.properties
 
     - name: Build with Gradle
       run: ./gradlew jar
