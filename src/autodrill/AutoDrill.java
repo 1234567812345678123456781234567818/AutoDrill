@@ -157,7 +157,7 @@ public class AutoDrill extends Mod {
         });
 
         // Handling
-        Events.on(EventType.TapEvent.class, event - > {
+        Events.on(EventType.TapEvent.class, event -> {
             if (enabled) {
                 selectTable.visible = true;
                 selectedTile = event.tile;
@@ -172,23 +172,23 @@ public class AutoDrill extends Mod {
             }
         });
 
-        ui.hudGroup.fill(t - > {
-            enableButton = t.button(new TextureRegionDrawable(Core.atlas.find("auto-drill-logo")), Styles.emptyTogglei, () - > {
+        ui.hudGroup.fill(t -> {
+            enableButton = t.button(new TextureRegionDrawable(Core.atlas.find("auto-drill-logo")), Styles.emptyTogglei, () -> {
                 enabled = !enabled;
                 selectTable.visible = false;
                 directionTable.visible = false;
             }).get();
             enableButton.resizeImage(buttonSize);
-            enableButton.visible(() - > Core.settings.getBool(bundle.get("auto-drill.settings.display-toggle-button")));
+            enableButton.visible(() -> Core.settings.getBool(bundle.get("auto-drill.settings.display-toggle-button")));
 
-            t.margin(5 f);
-            t.marginRight(140 f + 15 f);
+            t.margin(5f);
+            t.marginRight(140f + 15f);
             t.top().right();
         });
     }
 
     private void buildSelectTable() {
-        selectTable.update(() - > {
+        selectTable.update(() -> {
             if (Vars.state.isMenu()) {
                 selectTable.visible = false;
                 return;
@@ -197,55 +197,55 @@ public class AutoDrill extends Mod {
             selectTable.setPosition(v.x, v.y, Align.bottom);
         });
 
-        mechanicalDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-mechanical-drill-full")), Styles.defaulti, () - > {
+        mechanicalDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-mechanical-drill-full")), Styles.defaulti, () -> {
             enabled = false;
             selectTable.visible = false;
             directionTable.visible = true;
-            directionAction = direction - > BridgeDrill.fill(selectedTile, (Drill) Blocks.mechanicalDrill, direction);
+            directionAction = direction -> BridgeDrill.fill(selectedTile, (Drill) Blocks.mechanicalDrill, direction);
         }).get();
         Используйте код с осторожностью.
 
         mechanicalDrillButton.resizeImage(buttonSize);
-        pneumaticDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-pneumatic-drill-full")), Styles.defaulti, () - > {
+        pneumaticDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-pneumatic-drill-full")), Styles.defaulti, () -> {
             enabled = false;
             selectTable.visible = false;
             directionTable.visible = true;
-            directionAction = direction - > BridgeDrill.fill(selectedTile, (Drill) Blocks.pneumaticDrill, direction);
+            directionAction = direction -> BridgeDrill.fill(selectedTile, (Drill) Blocks.pneumaticDrill, direction);
         }).get();
         pneumaticDrillButton.resizeImage(buttonSize);
-        laserDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-laser-drill-full")), Styles.defaulti, () - > {
+        laserDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-laser-drill-full")), Styles.defaulti, () -> {
             enabled = false;
             selectTable.visible = false;
             OptimizationDrill.fill(selectedTile, (Drill) Blocks.laserDrill);
         }).get();
         laserDrillButton.resizeImage(buttonSize);
-        blastDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-blast-drill-full")), Styles.defaulti, () - > {
+        blastDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-blast-drill-full")), Styles.defaulti, () -> {
             enabled = false;
             selectTable.visible = false;
             OptimizationDrill.fill(selectedTile, (Drill) Blocks.blastDrill);
         }).get();
         blastDrillButton.resizeImage(buttonSize);
-        plasmaBoreButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-plasma-bore-full")), Styles.defaulti, () - > {
+        plasmaBoreButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-plasma-bore-full")), Styles.defaulti, () -> {
             enabled = false;
             selectTable.visible = false;
             directionTable.visible = true;
-            directionAction = direction - > WallDrill.fill(selectedTile, (BeamDrill) Blocks.plasmaBore, direction);
+            directionAction = direction -> WallDrill.fill(selectedTile, (BeamDrill) Blocks.plasmaBore, direction);
         }).get();
         plasmaBoreButton.resizeImage(buttonSize);
         /largePlasmaBoreButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-large-plasma-bore-full")), Styles.defaulti, () -> {
         selectTable.visible = false;
         directionTable.visible = true;
-        directionAction = direction - > WallDrill.fill(selectedTile, (BeamDrill) Blocks.largePlasmaBore, direction);
+        directionAction = direction -> WallDrill.fill(selectedTile, (BeamDrill) Blocks.largePlasmaBore, direction);
     }).get();
 largePlasmaBoreButton.resizeImage(buttonSize);
 /
-impactDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-impact-drill-full")), Styles.defaulti, () - > {
+impactDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-impact-drill-full")), Styles.defaulti, () -> {
     enabled = false;
     selectTable.visible = false;
     OptimizationDrill.fill(selectedTile, (Drill) Blocks.impactDrill, false);
 }).get();
 impactDrillButton.resizeImage(buttonSize);
-eruptionDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-eruption-drill-full")), Styles.defaulti, () - > {
+eruptionDrillButton = selectTable.button(new TextureRegionDrawable(Core.atlas.find("block-eruption-drill-full")), Styles.defaulti, () -> {
     enabled = false;
     selectTable.visible = false;
     OptimizationDrill.fill(selectedTile, (Drill) Blocks.eruptionDrill, false);
