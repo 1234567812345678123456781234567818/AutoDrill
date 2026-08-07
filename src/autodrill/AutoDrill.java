@@ -298,7 +298,7 @@ private void updateSelectTable() {
     }
 }
 private void buildDirectionTable() {
-    directionTable.update(() - > {
+    directionTable.update(() -> {
         if (Vars.state.isMenu()) {
             directionTable.visible = false;
             return;
@@ -306,25 +306,25 @@ private void buildDirectionTable() {
         Vec2 v = Core.camera.project(selectedTile.centerX() * Vars.tilesize, (selectedTile.centerY() + 1) * Vars.tilesize);
         directionTable.setPosition(v.x, v.y, Align.bottom);
     });
-    directionTable.table().get().button(Icon.up, Styles.defaulti, () - > {
+    directionTable.table().get().button(Icon.up, Styles.defaulti, () -> {
         directionAction.get(Direction.UP);
         directionTable.visible = false;
     }).get().resizeImage(buttonSize);
     directionTable.row();
     Table row2 = directionTable.table().get();
-    row2.button(Icon.left, Styles.defaulti, () - > {
+    row2.button(Icon.left, Styles.defaulti, () -> {
         directionAction.get(Direction.LEFT);
         directionTable.visible = false;
     }).get().resizeImage(buttonSize);
-    row2.button(Icon.cancel, Styles.defaulti, () - > {
+    row2.button(Icon.cancel, Styles.defaulti, () -> {
         directionTable.visible = false;
     }).get().resizeImage(buttonSize);
-    row2.button(Icon.right, Styles.defaulti, () - > {
+    row2.button(Icon.right, Styles.defaulti, () -> {
         directionAction.get(Direction.RIGHT);
         directionTable.visible = false;
     }).get().resizeImage(buttonSize);
     directionTable.row();
-    directionTable.table().get().button(Icon.down, Styles.defaulti, () - > {
+    directionTable.table().get().button(Icon.down, Styles.defaulti, () -> {
         directionAction.get(Direction.DOWN);
         directionTable.visible = false;
     }).get().resizeImage(buttonSize);
